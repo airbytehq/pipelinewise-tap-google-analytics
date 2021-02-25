@@ -66,6 +66,7 @@ class ReportsHelper:
             stream_metadata = {
                 "metadata": {
                     "inclusion": "automatic",
+                    "forced-replication-method": "incremental",
                     "table-key-properties": None
                 },
                 "breadcrumb": []
@@ -117,24 +118,19 @@ class ReportsHelper:
                 })
 
             # Also add the {start_date, end_date} params for the report query
-            schema['properties']['report_start_date'] = {
-                "type": ["string"],
-            }
-
-            schema['properties']['report_end_date'] = {
+            schema['properties']['report_date'] = {
                 "type": ["string"],
             }
 
             # If 'ga:date' has not been added as a Dimension, add the
             #  {start_date, end_date} params as keys
             if not date_dimension_included:
-                table_key_properties.append('report_start_date')
-                table_key_properties.append('report_end_date')
+                table_key_properties.append('report_date')
 
             stream_metadata['metadata']['table-key-properties'] = table_key_properties
 
             # Add the Stream metadata (empty breadcrumb) to the start of the
-            #  metada list so that everything is neatly organized in the Catalog
+            #  metadata list so that everything is neatly organized in the Catalog
             metadata.insert(0, stream_metadata)
 
             # create and add catalog entry
@@ -142,7 +138,7 @@ class ReportsHelper:
                 'stream': schema_name,
                 'tap_stream_id': schema_name,
                 'schema': schema,
-                'metadata' : metadata
+                'metadata': metadata
             }
             streams.append(catalog_entry)
 
