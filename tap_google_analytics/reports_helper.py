@@ -118,14 +118,19 @@ class ReportsHelper:
                 })
 
             # Also add the {start_date, end_date} params for the report query
-            schema['properties']['report_date'] = {
+            schema['properties']['report_start_date'] = {
+                "type": ["string"],
+            }
+
+            schema['properties']['report_end_date'] = {
                 "type": ["string"],
             }
 
             # If 'ga:date' has not been added as a Dimension, add the
             #  {start_date, end_date} params as keys
             if not date_dimension_included:
-                table_key_properties.append('report_date')
+                table_key_properties.append('report_start_date')
+                table_key_properties.append('report_end_date')
 
             stream_metadata['metadata']['table-key-properties'] = table_key_properties
 

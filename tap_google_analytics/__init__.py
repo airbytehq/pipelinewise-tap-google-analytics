@@ -87,7 +87,7 @@ def sync(config, state, catalog):
                 singer.write_schema(stream_id, stream_schema, key_properties)
                 singer.write_records(stream_id, results)
 
-                singer.write_bookmark(state, stream_id, 'report_date', client.end_date)
+                singer.write_bookmark(state, stream_id, 'report_start_date', client.end_date)
                 singer.write_state(state)
             except TapGaInvalidArgumentError as e:
                 errors_encountered = True

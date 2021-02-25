@@ -184,7 +184,7 @@ class GAClient:
     def process_stream(self, stream):
         try:
             records = []
-            bookmark = singer.get_bookmark(self.state, stream.get("name"), "report_date")
+            bookmark = singer.get_bookmark(self.state, stream.get("name"), "report_start_date")
             if bookmark:
                 start_date = datetime.strptime(bookmark, "%Y-%m-%d") + timedelta(days=1)
             else:
@@ -198,8 +198,8 @@ class GAClient:
                 nextPageToken = None
 
                 while True:
-                    response = self.query_api(report_definition, nextPageToken, raw_start_date)
-                    (nextPageToken, results) = self.process_response(response, raw_start_date)
+                    response = self.query_api(report_definition, nextPageToken, raw_start_date, raw_start_date)
+                    (nextPageToken, results) = self.process_response(response, raw_start_date, raw_start_date)
                     records.extend(results)
 
                     # Keep on looping as long as we have a nextPageToken
@@ -246,7 +246,7 @@ class GAClient:
                           (HttpError, socket.timeout),
                           max_tries=9,
                           giveup=is_fatal_error)
-    def query_api(self, report_definition, pageToken=None, report_date=None):
+    def query_api(self, report_definition, pageToken=None, start_date=None, end_date=None):
         """Queries the Analytics Reporting API V4.
 
         Returns:
@@ -257,7 +257,7 @@ class GAClient:
                 'reportRequests': [
                     {
                         'viewId': self.view_id,
-                        'dateRanges': [{'startDate': report_date, 'endDate': report_date}],
+                        'dateRanges': [{'startDate': start_date, 'endDate': end_date}],
                         'pageSize': '1000',
                         'pageToken': pageToken,
                         'metrics': report_definition['metrics'],
@@ -267,12 +267,13 @@ class GAClient:
             quotaUser=self.quota_user
         ).execute()
 
-    def process_response(self, response, report_date):
+    def process_response(self, response, start_date, end_date):
         """Processes the Analytics Reporting API V4 response.
 
         Args:
             response: An Analytics Reporting API V4 response.
-            report_date: Report date
+            start_date: Report start date
+            end_date: Report end date
 
         Returns: (nextPageToken, results)
             nextPageToken: The next Page Token
@@ -326,8 +327,8 @@ class GAClient:
                         record[metric_name.replace("ga:", "ga_")] = value
 
                 # Also add the [start_date,end_date) used for the report
-                record['report_start_date'] = self.start_date
-                record['report_end_date'] = self.end_date
+                record['report_start_date'] = start_date
+                record['report_end_date'] = end_date
 
                 results.append(record)
 
