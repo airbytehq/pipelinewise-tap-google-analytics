@@ -198,12 +198,12 @@ class GAClient:
                 nextPageToken = None
 
                 while True:
-                    response = self.query_api(report_definition, nextPageToken, raw_start_date, raw_start_date)
+                    response = self.query_api(report_definition, raw_start_date, raw_start_date, nextPageToken)
                     (nextPageToken, results) = self.process_response(response, raw_start_date, raw_start_date)
                     records.extend(results)
 
                     # Keep on looping as long as we have a nextPageToken
-                    if nextPageToken is None:
+                    if not nextPageToken:
                         break
 
                 start_date += timedelta(days=1)
@@ -246,7 +246,7 @@ class GAClient:
                           (HttpError, socket.timeout),
                           max_tries=9,
                           giveup=is_fatal_error)
-    def query_api(self, report_definition, pageToken=None, start_date=None, end_date=None):
+    def query_api(self, report_definition, start_date, end_date, pageToken=None):
         """Queries the Analytics Reporting API V4.
 
         Returns:

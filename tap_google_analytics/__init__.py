@@ -54,7 +54,7 @@ def get_selected_streams(catalog):
 
         # stream metadata will have an empty breadcrumb
         if metadata.get(stream_metadata, (), "selected") \
-                or metadata.get(stream_metadata, (), "inclusion") == 'automatic':
+                or metadata.get(stream_metadata, (), "inclusion") == "automatic":
             selected_streams.append(stream['tap_stream_id'])
 
     return selected_streams
